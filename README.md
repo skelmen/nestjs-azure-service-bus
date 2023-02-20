@@ -1,8 +1,21 @@
-# Message Brokers
+<p align="center">
+<a href="https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview" target="_blank">Azure Service Bus</a> module for <a href="https://nestjs.com" target="_blank">Nest.js framework</a></p>
+<p align="center">
+<a href="https://www.npmjs.com/~skelmen" target="_blank"><img src="https://img.shields.io/npm/v/@skelmen/nestjs-azure-service-bus-module.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~skelmen" target="_blank"><img src="https://img.shields.io/npm/l/@skelmen/nestjs-azure-service-bus-module.svg" alt="Package License" /></a>
+</p>
 
-Common code shared by Nodejs services
+## Description
 
-## Azure Service Bus
+Azure Service Bus module for Nest.js based on the @azure/service-bus package.
+
+## Installation
+
+```bash
+$ npm i --save @skelmen/nestjs-azure-service-bus-module
+```
+
+## Usage
 
 Azure service bus provider based on `@nestjs/microservices` ClientProxy service.
 
@@ -13,50 +26,65 @@ For scheduling message add `updateTime` param to `data` object.
 ```ts
 AzureServiceBusModule.forRootAsync([
   {
-    name: 'provider_name',
+    name: 'provider_name_1',
     useFactory: (configService: ConfigService) => ({
-      connectionString: 'Azure service bus connection string',
-      options: {} // custom options
+      connectionString: configService.get('connectionString1'),
+      options: {} // Azure service bus client options
     }),
     inject: [ConfigService],
+  },
+  {
+    name: 'provider_name_2',
+    useFactory: () => ({
+      connectionString: 'connectionString2',
+      options: {} // Azure service bus client options
+    }),
+    inject: [],
   },
 ]),
 ```
 
-### Service usage
+#### Service example
 
 ```ts
 @Injectable()
 export class AppService {
 
   constructor(
-    @Inject('provider_name') private readonly messageBrokerClient: AzureServiceBusClient,
+    @Inject('provider_name_1') private readonly serviceBusClient: AzureServiceBusClient,
   ) { }
 
-  async getData(){
-    const queueName = 'queue';
-    const pattern = {
-      name: queueName,
-      options: {} // Azure service bus options
-    };
-    const data = {
-      updateTime: '2022-11-23 11:53:00+02', // for scheduling message
+  getData(){
+    const options = {}; // Azure options for configuring tracing and the abortSignal
+    const payload = {
       body: {
         id: '39219'
-        ...
       }
     };
+    this.serviceBusClient.emit({ payload, options, updateTime });
+  }
 
-    this.messageBrokerClient.emit(pattern, data);
+  scheduleData(){
+    const options = {};
+    const payload = {
+      body: {
+        id: '39219'
+      }
+    };
+    const updateTime = new Date('2023-02-20 13:26:00+02'); // (Optional) For scheduling messages
+    this.serviceBusClient.emit({ payload, options, updateTime });
   }
 }
 ```
 
-#### Message handler
+#### Handle events
 
 ```ts
-@HandleMessageEvent
-async processMessage(data) {
-  // processing message
+@Subscribe('service-bus-queue-name')
+async handler(data) {
+  console.log(">>>>>", data)
 }
 ```
+
+## License
+This project is licensed under the [MIT License](LICENSE.md)
