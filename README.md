@@ -17,9 +17,7 @@ $ npm i --save @skelmen/nestjs-azure-service-bus-module
 
 ## Usage
 
-Azure service bus provider based on `@nestjs/microservices` ClientProxy service.
-
-For scheduling message add `updateTime` param to `data` object.
+For messages scheduling pass `updateTime` param to `emit` method.
 
 #### Import module
 
@@ -71,7 +69,8 @@ export class AppService {
         id: '39219'
       }
     };
-    const updateTime = new Date('2023-02-20 13:26:00+02'); // (Optional) For scheduling messages
+    // (Optional) For scheduling messages
+    const updateTime = new Date('2023-02-20 13:26:00+02');
     this.serviceBusClient.emit({ payload, options, updateTime });
   }
 }
