@@ -39,9 +39,5 @@
     "nest",
     "azure service bus",
     "message broker"
-  ],
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
-  }
+  ]
 }
