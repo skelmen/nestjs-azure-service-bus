@@ -1,7 +1,7 @@
 <p align="center">
 <a href="https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview" target="_blank">Azure Service Bus</a> module for <a href="https://nestjs.com" target="_blank">Nest.js framework</a></p>
 <p align="center">
-<a href="https://www.npmjs.com/~skelmen" target="_blank"><img src="https://img.shields.io/npm/v/@skelmen/nestjs-azure-service-bus-module.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/package/@skelmen/nestjs-azure-service-bus-module" target="_blank"><img src="https://img.shields.io/npm/v/@skelmen/nestjs-azure-service-bus-module.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~skelmen" target="_blank"><img src="https://img.shields.io/npm/l/@skelmen/nestjs-azure-service-bus-module.svg" alt="Package License" /></a>
 </p>
 
@@ -16,8 +16,6 @@ $ npm i --save @skelmen/nestjs-azure-service-bus-module
 ```
 
 ## Usage
-
-For messages scheduling pass `updateTime` param to `emit` method.
 
 #### Import module
 
@@ -44,6 +42,8 @@ AzureServiceBusModule.forRootAsync([
 
 #### Service example
 
+For messages scheduling pass `updateTime` param to `emit` method.
+
 ```ts
 @Injectable()
 export class AppService {
@@ -59,7 +59,7 @@ export class AppService {
         id: '39219'
       }
     };
-    this.serviceBusClient.emit({ payload, options, updateTime });
+    this.serviceBusClient.emit({ payload, options });
   }
 
   scheduleData(){
@@ -81,7 +81,7 @@ export class AppService {
 ```ts
 @Subscribe('service-bus-queue-name')
 async handler(data) {
-  console.log(">>>>>", data)
+  console.log(data);
 }
 ```
 
