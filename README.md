@@ -7,6 +7,8 @@
 
 ## Description
 
+<a href="https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview" target="_blank">Azure Service Bus</a> is a cloud based message broker. You can use Azure Service Bus to send messages between applications or services. It supports AMQP / STOMP protocols, automatic scalability and disaster recovery.
+
 Azure Service Bus module for Nest.js based on the @azure/service-bus package.
 
 ## Installation
