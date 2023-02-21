@@ -1,12 +1,10 @@
 {
   "name": "@skelmen/nestjs-azure-service-bus-module",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Azure Service Bus module for Nest.js framework",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.json",
-    "install": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
