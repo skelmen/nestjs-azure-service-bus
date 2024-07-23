@@ -1,14 +1,4 @@
-import { EventExplorerService } from '../constants';
+import { SetMetadata } from '@nestjs/common';
+import { AZURE_SERVICE_BUS_CONSUMER_METHOD } from '../constants';
 
-export function Subscribe(queueName: string): MethodDecorator {
-  const service = EventExplorerService;
-  return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-    const TargetCtor = target.constructor;
-    const instance = new TargetCtor();
-
-    const handler = descriptor.value.bind(instance);
-    service.subscribe(queueName, handler);
-
-    return instance;
-  }
-}
+export const Subscribe = (name: string) => SetMetadata(AZURE_SERVICE_BUS_CONSUMER_METHOD, { name });

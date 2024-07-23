@@ -1,5 +1,1 @@
-import { EventExplorer } from '../services/event-explorer.service';
-
-export const EventExplorerService = new EventExplorer();
-
-export const AZURE_SERVICE_BUS_EVENT_EXPLORER = 'AZURE_SERVICE_BUS_EVENT_EXPLORER';
+export const AZURE_SERVICE_BUS_CONSUMER_METHOD = Symbol.for('AZURE_SERVICE_BUS_CONSUMER_METHOD');

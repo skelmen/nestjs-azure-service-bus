@@ -10,3 +10,7 @@ export interface IAzureServiceBusEmit<T> {
   options?: OperationOptionsBase;
   updateTime?: Date;
 }
+
+export interface IMessageHandlerMeta {
+  name: string;
+}

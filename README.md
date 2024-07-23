@@ -19,6 +19,8 @@ $ npm i --save @skelmen/nestjs-azure-service-bus-module
 
 ## Usage
 
+Recommended Nest.js version >=10.0.0
+
 #### Import module
 
 ```ts
@@ -34,10 +36,9 @@ AzureServiceBusModule.forRootAsync([
   {
     name: 'provider_name_2',
     useFactory: () => ({
-      connectionString: 'connectionString2',
+      connectionString: 'azure_service_bus_connection_string',
       options: {} // Azure service bus client options
     }),
-    inject: [],
   },
 ]),
 ```
@@ -54,17 +55,17 @@ export class AppService {
     @Inject('provider_name_1') private readonly serviceBusClient: AzureServiceBusClient,
   ) { }
 
-  getData(){
+  async getData(){
     const options = {}; // Azure options for configuring tracing and the abortSignal
     const payload = {
       body: {
         id: '39219'
       }
     };
-    this.serviceBusClient.emit({ payload, options });
+    await this.serviceBusClient.emit({ payload, options });
   }
 
-  scheduleData(){
+  async scheduleData(){
     const options = {};
     const payload = {
       body: {
@@ -73,17 +74,19 @@ export class AppService {
     };
     // (Optional) For scheduling messages
     const updateTime = new Date('2023-02-20 13:26:00+02');
-    this.serviceBusClient.emit({ payload, options, updateTime });
+    await this.serviceBusClient.emit({ payload, options, updateTime });
   }
 }
 ```
 
 #### Handle events
 
+Add handler to your any service
+
 ```ts
-@Subscribe('service-bus-queue-name')
-async handler(data) {
-  console.log(data);
+@Subscribe('service-bus-queue-name') // Service bus queue name
+async handler({ body }) {
+  console.log(body);
 }
 ```
 

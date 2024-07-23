@@ -1,4 +1,3 @@
-import { Inject } from '@nestjs/common';
 import {
   MessageHandlers,
   parseServiceBusConnectionString,
@@ -6,13 +5,14 @@ import {
   ServiceBusClient,
   ServiceBusConnectionStringProperties,
   ServiceBusMessage,
-  ServiceBusReceivedMessage,
   ServiceBusReceiver,
   ServiceBusSender,
 } from '@azure/service-bus';
+import { DiscoveredMethodWithMeta, DiscoveryService } from '@golevelup/nestjs-discovery';
 
-import { IAzureServiceBusOptions, IAzureServiceBusEmit } from '../interfaces';
-import { AZURE_SERVICE_BUS_EVENT_EXPLORER, EventExplorerService } from '../constants';
+import { IAzureServiceBusOptions, IAzureServiceBusEmit, IMessageHandlerMeta } from '../interfaces';
+import { AZURE_SERVICE_BUS_CONSUMER_METHOD } from '../constants';
+
 
 export class AzureServiceBusClient {
   private client: ServiceBusClient;
@@ -22,17 +22,20 @@ export class AzureServiceBusClient {
 
   constructor(
     protected readonly config: IAzureServiceBusOptions,
-    @Inject(AZURE_SERVICE_BUS_EVENT_EXPLORER) protected readonly eventExplorerService: typeof EventExplorerService
-  ) {
-    this.init();
-  }
+    private readonly discover: DiscoveryService,
+  ) { }
 
-  init() {
+  public async onModuleInit(): Promise<void> {
+    const messageHandlers = await this.discover.providerMethodsWithMetaAtKey<IMessageHandlerMeta>(AZURE_SERVICE_BUS_CONSUMER_METHOD);
     this.client = new ServiceBusClient(this.config.connectionString, this.config.options);
     this.clientConfig = parseServiceBusConnectionString(this.config.connectionString);
-    this.sender = this.client.createSender(this.clientConfig.entityPath);
-    this.receiver = this.client.createReceiver(this.clientConfig.entityPath);
-    this.receiver.subscribe(this.createMessageHandlers());
+
+    const entityPath = this.clientConfig.entityPath;
+    const metadata = messageHandlers.find(({ meta }) => meta.name === entityPath);
+
+    this.sender = this.client.createSender(entityPath);
+    this.receiver = this.client.createReceiver(entityPath);
+    this.receiver.subscribe(this.createMessageHandlers(metadata));
   }
 
   async emit<T extends ServiceBusMessage | ServiceBusMessage[]>(data: IAzureServiceBusEmit<T>): Promise<void> {
@@ -52,26 +55,15 @@ export class AzureServiceBusClient {
     }
   }
 
-  private createMessageHandlers(): MessageHandlers {
+  private createMessageHandlers(metadata: DiscoveredMethodWithMeta<IMessageHandlerMeta>): MessageHandlers {
     return {
-      processMessage: async (receivedMessage: ServiceBusReceivedMessage) => {
-        await this.handleMessage(receivedMessage);
-      },
+      processMessage: metadata.discoveredMethod.handler.bind(metadata.discoveredMethod.parentClass.instance),
       processError: (args: ProcessErrorArgs): Promise<void> => {
         return new Promise<void>(() => {
           throw new Error(`Error processing message: ${args.error}`);
         });
       },
     };
-  }
-
-  handleMessage(receivedMessage: ServiceBusReceivedMessage): void {
-    try {
-      const { body } = receivedMessage;
-      this.eventExplorerService.invoke(this.clientConfig.entityPath, { body });
-    } catch (err) {
-      throw err;
-    }
   }
 
   async close(): Promise<void> {
